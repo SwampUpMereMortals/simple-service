@@ -15,6 +15,14 @@ multiple Docker images all being deployed to Kubernetes/GKE via Travis
 
 ## Build & Run as Docker
 
-TODO
-1. ``
-2. ``
+1.
+
+    docker build \
+    --build-arg version=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec) \
+    --build-arg jar=$(mvn -q -Dexec.executable="echo" -Dexec.args='${jar.finalName}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec).jar \
+    -t simple-service:latest-dev .
+
+2. `docker run -p 8080:8080 simple-service:latest-dev`
+
+3. `curl http://192.168.99.100:8080/simple` (or whatever IP for docker
+   VM, etc).
