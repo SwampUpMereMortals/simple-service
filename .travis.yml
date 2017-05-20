@@ -16,14 +16,17 @@ install:
   - sudo apt-get install mere-mortal-ci
 
 script:
+  - set -ev
   - mvn -B clean install
+  - export SERVICE_NAME=simple-service
   - export SERVICE_VERSION="$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)"
   - export JAR_NAME="$(mvn -q -Dexec.executable="echo" -Dexec.args='${jar.finalName}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec).jar"
   - echo Built ${JAR_NAME} at version ${SERVICE_VERSION}
-  - docker build --build-arg version=${SERVICE_VERSION} --build-arg jar=${JAR_NAME} -t simple-service:latest .
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  - docker build --build-arg version=${SERVICE_VERSION} --build-arg jar=${JAR_NAME} -t ${SERVICE_NAME}:latest .
+  - |-
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
       set -ev;
-      /opt/mere-mortals/swampup/increment-pom-version.sh;
-      /opt/mere-mortals/swampup/publish-docker-image.sh simple-service;
+      /opt/mere-mortals/swampup/increment-pom-version.sh && 
+      /opt/mere-mortals/swampup/publish-docker-image.sh ${SERVICE_NAME};
     fi
   - docker images
